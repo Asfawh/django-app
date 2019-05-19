@@ -10,9 +10,8 @@ class PostTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(pk=1)
-    # ...
 
-    # add this test method to the PostTestCase
+
     def test_string_representation(self):
         expected = "This is a title"
         p1 = Post(title=expected)
@@ -55,3 +54,13 @@ class FrontEndTestCase(TestCase):
                 self.assertContains(resp, title, count=1)
             else:
                 self.assertNotContains(resp, title)
+    def test_detail_only_published(self):
+        for count in range(1, 11):
+            title = "Post %d Title" % count
+            post = Post.objects.get(title=title)
+            resp = self.client.get('/posts/%d/' % post.pk)
+            if count < 6:
+                self.assertEqual(resp.status_code, 200)
+                self.assertContains(resp, title)
+            else:
+                self.assertEqual(resp.status_code, 404)
